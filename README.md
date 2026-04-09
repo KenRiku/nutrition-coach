@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eathletes
 
-## Getting Started
+AI-powered sports nutrition coaching. Personalized daily nutrition plans that adapt to your training load.
 
-First, run the development server:
+## Stack
 
+- **Next.js 16** (App Router, TypeScript)
+- **PostgreSQL** via [Neon](https://neon.tech) + Prisma ORM
+- **NextAuth v4** — JWT-based authentication
+- **Anthropic Claude** (`claude-3-5-haiku-20241022`) — AI plan generation
+- **Tailwind CSS v4** — dark theme with electric orange + cool green palette
+
+## Setup
+
+### 1. Clone and install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment
+```bash
+cp .env.example .env
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Fill in:
+- `DATABASE_URL` — Neon PostgreSQL connection string
+- `AUTH_SECRET` — run `openssl rand -base64 32`
+- `NEXTAUTH_URL` — `http://localhost:3000`
+- `ANTHROPIC_API_KEY` — your Anthropic API key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Set up the database
+```bash
+npx prisma db push
+```
 
-## Learn More
+### 4. Run dev server
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Landing page** — value prop with live demo UI
+- **Sign up / Log in** — email + password auth
+- **3-step onboarding** — body metrics, sport & goals, dietary preferences
+- **Dashboard** — today's AI nutrition plan with macro targets, meal plan, AI reasoning, and energy feedback
+- **Training schedule** — weekly calendar view, add/delete workouts
+- **Profile** — edit athlete profile, all fields
 
-## Deploy on Vercel
+## User Flow
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Create account at `/signup`
+2. Complete 3-step onboarding (body metrics, sport, dietary prefs)
+3. Add workouts on the `/schedule` page
+4. Hit "Generate Plan" on `/dashboard` for an AI-personalized nutrition plan
+5. Rate energy at end of day to help the AI improve
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Routes
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/signup` | Create account |
+| POST | `/api/auth/[...nextauth]` | NextAuth handler |
+| POST | `/api/onboarding` | Save athlete profile |
+| GET | `/api/profile` | Get current profile |
+| PUT | `/api/profile` | Update profile |
+| GET | `/api/workouts` | List workouts (week filter) |
+| POST | `/api/workouts` | Create workout |
+| DELETE | `/api/workouts/[id]` | Delete workout |
+| GET | `/api/plans/today` | Get today's nutrition plan |
+| POST | `/api/plans/generate` | Generate AI nutrition plan |
+| POST | `/api/plans/[id]/feedback` | Submit energy rating |
+
+## Design
+
+Dark performance dashboard aesthetic. Barlow Condensed for display text, DM Sans for body. Electric orange (`#FF5722`) accents, cool green (`#4CAF50`) for macros/success states.

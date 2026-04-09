@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String          @id @default(cuid())
+  email                String          @unique
+  password_hash        String
+  name                 String
+  height_cm            Float?
+  weight_kg            Float?
+  age                  Int?
+  sex                  String?
+  sport_type           String?
+  goal                 String?
+  dietary_preferences  Json?
+  strava_athlete_id    String?
+  strava_access_token  String?
+  strava_refresh_token String?
+  onboarding_completed Boolean         @default(false)
+  created_at           DateTime        @default(now())
+  updated_at           DateTime        @updatedAt
+  workouts             Workout[]
+  nutrition_plans      NutritionPlan[]
+  plan_feedbacks       PlanFeedback[]
+}
+
+model Workout {
+  id                 String   @id @default(cuid())
+  user_id            String
+  source             String   @default("manual")
+  strava_activity_id String?
+  type               String   @default("other")
+  date               DateTime
+  duration_minutes   Int?
+  distance_km        Float?
+  intensity          String?
+  calories_burned    Int?
+  notes              String?
+  created_at         DateTime @default(now())
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model NutritionPlan {
+  id             String         @id @default(cuid())
+  user_id        String
+  date           DateTime
+  total_calories Int
+  carbs_g        Float
+  protein_g      Float
+  fat_g          Float
+  hydration_ml   Int
+  ai_reasoning   String
+  generated_at   DateTime       @default(now())
+  user           User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  meals          Meal[]
+  feedbacks      PlanFeedback[]
+}
+
+model Meal {
+  id               String        @id @default(cuid())
+  nutrition_plan_id String
+  meal_type        String
+  name             String
+  description      String?
+  timing           String?
+  calories         Int
+  carbs_g          Float
+  protein_g        Float
+  fat_g            Float
+  ingredients      Json?
+  supplements      Json?
+  nutrition_plan   NutritionPlan @relation(fields: [nutrition_plan_id], references: [id], onDelete: Cascade)
+}
+
+model PlanFeedback {
+  id               String        @id @default(cuid())
+  nutrition_plan_id String
+  user_id          String
+  energy_rating    Int
+  notes            String?
+  created_at       DateTime      @default(now())
+  nutrition_plan   NutritionPlan @relation(fields: [nutrition_plan_id], references: [id], onDelete: Cascade)
+  user             User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
